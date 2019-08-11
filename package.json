@@ -1,0 +1,19 @@
+{
+  "name": "islandora_workbench_desktop",
+  "version": "1.0.0",
+  "description": "A desktop interface for Islandora Workbench.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": "https://github.com/mjordan/islandora_workbench_desktop",
+  "keywords": [],
+  "author": "Mark Jordan",
+  "license": "Unlicense",
+  "dependencies": {
+    "python-shell": "^1.0.8"
+  },
+  "devDependencies": {
+    "electron": "^6.0.1"
+  }
+}
