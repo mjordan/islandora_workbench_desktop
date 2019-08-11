@@ -25,6 +25,7 @@ Since this (extremely basic) proof of concept hard-codes the path to Islandora W
 // be relative to the Islandora Workbench Desktop directory.
 args: ['--config', '../workbench/workbench_desktop.yml']
 ```
+and
 
 ```javascript
 // You may need to adjust the path to workbench so that is it relative to
@@ -42,7 +43,16 @@ After you adjust the paths, from within the islandora_workbench_desktop director
 
 `npm start`
 
-Then click on the "Run Islandora Workbench" button. A little while later you will see some output from Islandora Workbench, the you should have some nodes in your Islandora instance.
+You will see this:
+
+![Workbench Desktop](docs/images/workbench_desktop1.png)
+
+Then click on the "Run Islandora Workbench" button. A little while later you will see some output from Islandora Workbench:
+
+![Workbench Desktop with output](docs/images/workbench_desktop2.png)
+
+
+And you should have some nodes in your Islandora instance.
 
 ## License
 
