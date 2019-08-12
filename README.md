@@ -51,8 +51,9 @@ Then click on the "Run Islandora Workbench" button. As each node and media is cr
 
 ![Workbench Desktop with output](docs/images/workbench_desktop2.png)
 
+And the nodes and media will be in your Islandora instance:
 
-And you should have some nodes in your Islandora instance.
+![Workbench Desktop with output](docs/images/content.png)
 
 ## License
 
