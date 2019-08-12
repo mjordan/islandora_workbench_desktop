@@ -30,7 +30,7 @@ and
 ```javascript
 // You may need to adjust the path to workbench so that is it relative to
 // the Islandora Workbench Desktop directory.
-PythonShell.run('../workbench/workbench', options, function (err, results) {
+let shell = new PythonShell('../workbench/workbench', options);
 ```
 
 And in the `workbench_desktop.yml` file, adjust the path to the Workbench `input_dir` so that is is also relative to the Desktop directory:
@@ -47,7 +47,7 @@ You will see this:
 
 ![Workbench Desktop](docs/images/workbench_desktop1.png)
 
-Then click on the "Run Islandora Workbench" button. A little while later you will see some output from Islandora Workbench:
+Then click on the "Run Islandora Workbench" button. As each node and media is created, a message will be added to the output. When finished, it will look like this:
 
 ![Workbench Desktop with output](docs/images/workbench_desktop2.png)
 
