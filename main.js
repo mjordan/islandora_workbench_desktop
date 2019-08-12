@@ -28,18 +28,23 @@ function createWindow () {
   ipc.on('asynchronous-message', function (event, arg) {
     let {PythonShell} = require('python-shell');
     let options = {
+      mode: 'text',
       pythonOptions: ['-u'],
       // You may need to adjust the path to the workbench configuration file, and also
       // the path in the 'input_dir' option with the configuration file. All paths must
       // be relative to the Islandora Workbench Desktop directory.
       args: ['--config', '../workbench/workbench_desktop.yml']
     }
+
     // You may need to adjust the path to workbench so that is it relative to
     // the Islandora Workbench Desktop directory.
-    PythonShell.run('../workbench/workbench', options, function (err, results) {
-      if (err) throw err;
-      output = results.valueOf().join('<br />')
-      event.sender.send('asynchronous-reply', output)
+    let shell = new PythonShell('../workbench/workbench', options);
+    shell.on('message', function (message) {
+      event.sender.send('asynchronous-reply', message)
+    });
+
+    shell.on('close', function (message) {
+      event.sender.send('workbench-exit', 'Islandora Workbench has finished.')
     });
   })
 

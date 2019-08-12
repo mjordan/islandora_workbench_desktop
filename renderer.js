@@ -10,5 +10,10 @@ asyncMsgBtn.addEventListener('click', function () {
 })
 
 ipc.on('asynchronous-reply', function (event, arg) {
-  document.getElementById('asyncReply').innerHTML = arg 
+  // document.getElementById('asyncReply').innerHTML = arg 
+  document.getElementById('asyncReply').innerHTML = document.getElementById('asyncReply').innerHTML + '<br />' + arg
+})
+
+ipc.on('workbench-exit', function (event, arg) {
+  document.getElementById('workbench-exit').innerHTML = arg 
 })
