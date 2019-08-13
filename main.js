@@ -15,18 +15,27 @@ let mainWindow
 const menu_template = [{
   label: 'Application',
     submenu: [
+      { label: 'Set path to workbench', click: function () { openWorkbenchPathDialog() } },
       { label: 'Quit', accelerator: 'CmdOrCtrl+Q', role: 'quit' }
     ]},
     {
     label: 'Task',
     submenu: [
-      { label: 'Choose configuration file', accelerator: 'CmdOrCtrl+F', click: function () { openConfigFileDialog() } }
+      { label: 'Choose configuration file', accelerator: 'CmdOrCtrl+F', click: function () { openConfigFileDialog() } },
+      { label: 'Edit a CSV file (not implemented yet!)', enabled: false },
     ]}
   ]
 
+function openWorkbenchPathDialog () {
+  dialog.showOpenDialog(null, { properties: ['openFile'] }, (filePaths) => { store.set('workbench.path-to-workbench', filePaths[0]); } )
+}
+
 function openConfigFileDialog () {
   dialog.showOpenDialog(null, { properties: ['openFile'], filters: [{ name: 'YAML', extensions: ['yaml', 'yml'] }] }, (filePaths) => { store.set('workbench.current-config-file', filePaths[0]); } )
-} 
+}
+
+function openCSVFileDialog () {
+}
 
 function createWindow () {
   // Create the browser window.
@@ -52,17 +61,13 @@ function createWindow () {
     let options = {
       mode: 'text',
       pythonOptions: ['-u'],
-      // You may need to adjust the path to the workbench configuration file, and also
-      // the path in the 'input_dir' option with the configuration file. All paths must
-      // be relative to the Islandora Workbench Desktop directory.
-      // args: ['--config', '../workbench/workbench_desktop.yml']
+      // The value of the 'input_dir' option in the configuration file
+      // must be relative to the Islandora Workbench Desktop directory.
       args: ['--config', store.get('workbench.current-config-file')]
     }
     event.sender.send('workbench-config-file', 'Using configuration file ' + store.get('workbench.current-config-file'))
 
-    // You may need to adjust the path to workbench so that is it relative to
-    // the Islandora Workbench Desktop directory.
-    let shell = new PythonShell('../workbench/workbench', options);
+    let shell = new PythonShell(store.get('workbench.path-to-workbench'), options);
     shell.on('message', function (message) {
       event.sender.send('asynchronous-reply', message)
     });

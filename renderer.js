@@ -10,7 +10,6 @@ asyncMsgBtn.addEventListener('click', function () {
 })
 
 ipc.on('asynchronous-reply', function (event, arg) {
-  // document.getElementById('asyncReply').innerHTML = arg 
   document.getElementById('asyncReply').innerHTML = document.getElementById('asyncReply').innerHTML + '<br />' + arg
 })
 
