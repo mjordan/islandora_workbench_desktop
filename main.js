@@ -5,6 +5,9 @@ const path = require('path')
 
 const { dialog } = require('electron')
 
+const Store = require('electron-store');
+const store = new Store();
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
@@ -22,7 +25,7 @@ const menu_template = [{
   ]
 
 function openConfigFileDialog () {
-  dialog.showOpenDialog(null, { properties: ['openFile'], filters: [{ name: 'YAML', extensions: ['yaml', 'yml'] }] }, (filePaths) => { console.log(filePaths) } )
+  dialog.showOpenDialog(null, { properties: ['openFile'], filters: [{ name: 'YAML', extensions: ['yaml', 'yml'] }] }, (filePaths) => { store.set('workbench.current-config-file', filePaths[0]); } )
 } 
 
 function createWindow () {
@@ -52,8 +55,10 @@ function createWindow () {
       // You may need to adjust the path to the workbench configuration file, and also
       // the path in the 'input_dir' option with the configuration file. All paths must
       // be relative to the Islandora Workbench Desktop directory.
-      args: ['--config', '../workbench/workbench_desktop.yml']
+      // args: ['--config', '../workbench/workbench_desktop.yml']
+      args: ['--config', store.get('workbench.current-config-file')]
     }
+    event.sender.send('workbench-config-file', 'Using configuration file ' + store.get('workbench.current-config-file'))
 
     // You may need to adjust the path to workbench so that is it relative to
     // the Islandora Workbench Desktop directory.

@@ -11,6 +11,7 @@
   "author": "Mark Jordan",
   "license": "Unlicense",
   "dependencies": {
+    "electron-store": "^4.0.0",
     "python-shell": "^1.0.8"
   },
   "devDependencies": {
