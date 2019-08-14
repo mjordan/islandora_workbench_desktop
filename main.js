@@ -18,12 +18,14 @@ const menu_template = [{
       { label: 'Set path to workbench', click: function () { openWorkbenchPathDialog() } },
       { label: 'Return to main window', accelerator: 'CmdOrCtrl+M', click: function () { mainWindow.loadURL('file://' + path.join(__dirname, 'index.html'));} },
       { label: 'View log file', accelerator: 'CmdOrCtrl+L', click: function () { mainWindow.loadURL('file://' + path.join(__dirname, 'workbench.log'));} },
+      { label: 'Clear main window', click: function () { mainWindow.loadURL('file://' + path.join(__dirname, 'index.html'));} },
       { label: 'Quit', accelerator: 'CmdOrCtrl+Q', role: 'quit' }
     ]},
     {
     label: 'Task',
     submenu: [
       { label: 'Choose configuration file', accelerator: 'CmdOrCtrl+F', click: function () { openConfigFileDialog() } },
+      { label: 'Edit a configuration file (not implemented yet!)', enabled: false },
       { label: 'Edit a CSV file (not implemented yet!)', enabled: false },
     ]}
   ]
