@@ -17,12 +17,24 @@ A proof of concept illustrating how an Electron application can be run on top of
 
 ## Usage
 
+### Preparing configuration files
+
+You can use Workbench Desktop with any Islandora Workbench configuration file, with one difference: all file paths in configuration files must be absolute or relative to the Workbench Destop directory. For example, if Islandora Workbench and Islandora Workbench Desktop are installed in sibling directories, the relative file path in the `input_dir` configuration setting would look like this:
+
+```yaml
+input_dir: ../workbench/input_data
+```
+
+A sample configuration file, `workbench_desktop.yml`, is included with Workbench Desktop to illustrate this requirement.
+
+### Running Workbench Desktop
+
 1. Make sure your Islandora instance is running.
-1. Copy the `workbench_desktop.yml` file provided with Workbench Desktop into the Workbench directory. Adjust the path in the `input_dir` as described below.
-1. In the Islandora Workbench Desktop directory, open a terminal and run `npm start`.
-1. You will need to tell Workbench Desktop where the `workbench` exectuble script is. To do this, open the "Application" menu and choose the "Set path to workbench" item. A file selector dialog box will appear; browse to the `workbench` script and select it. You only need to do this once, not every time you run Workbench Desktop.
+1. In the Islandora Workbench Desktop directory, open a terminal and run `npm start` (we will eventually provide a clickable icon for Workbench Desktop, like any other desktop application has).
+1. You will need to tell Workbench Desktop where the `workbench` exectuble script is. To do this, open the "Application" menu and choose the "Set path to workbench" item. A file selector dialog box will appear; browse to the `workbench` script and select it. *You only need to do this once,* not every time you run Workbench Desktop.
 1. To execute Workbench Desktop, you will need to select a configuration file. To do this, open the "Task" menu and choose "Choose a configuration file". Only YAML files show up in this file chooser.
 1. After you've selected your configuration file, you are ready to click on the "Run Islandora Workbench" button. You will then see the ingest happening. As each node and media is created, a message will be added to the output. When finished, it will look like this:
+
 
 ![Workbench Desktop](docs/images/workbench_desktop.png)
 
@@ -30,15 +42,6 @@ And the nodes and media will be in your Islandora instance:
 
 ![Workbench Desktop with output](docs/images/content.png)
 
-## Paths in your configuration file
-
-In your workbench configuration files, paths will need to be relative to the directory where Islandora Workbench Desktop is running. For example, in the sample `workbench_desktop.yml` file, adjust the path to the Workbench `input_dir` so that is is also relative to the Desktop directory:
-
-```yaml
-input_dir: ../workbench/input_data
-```
-
-This path assumes that `workbench` and Workbench Desktop are in sibling directories.
 
 ## License
 
