@@ -36,7 +36,7 @@ A sample configuration file, `workbench_desktop.yml`, is included with Workbench
 1. After you've selected your configuration file, you are ready to check your configuration and data. Click on the "Check configuration and data" button. You will then see the output of Workbench's checks:
 
 
-![Workbench checks](workbench_desktop_check.png)
+![Workbench checks](docs/images/workbench_desktop_check.png)
 
 
 1. If the checks pass, you can then run the task (create new content, update content, etc.). Click on the "Run task" button. You will then see the output of the task. As each node and media is created/updated/deleted, a message will be added to the output. When finished, it will look similar to this, depending on the task:
