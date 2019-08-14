@@ -3,14 +3,14 @@
 // All of the Node.js APIs are available in this process.
 
 const ipc = require('electron').ipcRenderer
-const asyncMsgBtn = document.getElementById('sendSyncMsgBtn')
+const asyncRunButton = document.getElementById('runButton')
 
-asyncMsgBtn.addEventListener('click', function () {
+asyncRunButton.addEventListener('click', function () {
   ipc.send('asynchronous-message', '')
 })
 
 ipc.on('asynchronous-reply', function (event, arg) {
-  document.getElementById('asyncReply').innerHTML = document.getElementById('asyncReply').innerHTML + '<br />' + arg
+  document.getElementById('workbench-output').innerHTML = document.getElementById('workbench-output').innerHTML + '<br />' + arg
 })
 
 ipc.on('workbench-exit', function (event, arg) {

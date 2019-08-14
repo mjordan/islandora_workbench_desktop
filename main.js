@@ -23,6 +23,7 @@ const menu_template = [{
     submenu: [
       { label: 'Choose configuration file', accelerator: 'CmdOrCtrl+F', click: function () { openConfigFileDialog() } },
       { label: 'Edit a CSV file (not implemented yet!)', enabled: false },
+      { label: 'Check configuration and data', enabled: false, accelerator: 'CmdOrCtrl+C', click: function () { checkWorkbenchConfig() } },
     ]}
   ]
 
@@ -48,21 +49,23 @@ function createWindow () {
       nodeIntegration: true
     }
   })
-
-  // and load the index.html of the app.
   mainWindow.loadFile('index.html')
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
 
+  // Execute workbench.
   const ipc = electron.ipcMain
   ipc.on('asynchronous-message', function (event, arg) {
+    console.log(store.get('workbench.current-config-file'))
+    if (typeof store.get('workbench.current-config-file') == "undefined") {
+      event.sender.send('workbench-config-file', 'No configuration file selected.')
+    }
+
     let {PythonShell} = require('python-shell');
     let options = {
       mode: 'text',
       pythonOptions: ['-u'],
-      // The value of the 'input_dir' option in the configuration file
-      // must be relative to the Islandora Workbench Desktop directory.
       args: ['--config', store.get('workbench.current-config-file')]
     }
     event.sender.send('workbench-config-file', 'Using configuration file ' + store.get('workbench.current-config-file'))
@@ -99,8 +102,6 @@ app.on('ready', function () {
   Menu.setApplicationMenu(menu)
   createWindow()
 })
-
-
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
