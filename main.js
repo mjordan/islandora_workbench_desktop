@@ -23,7 +23,6 @@ const menu_template = [{
     submenu: [
       { label: 'Choose configuration file', accelerator: 'CmdOrCtrl+F', click: function () { openConfigFileDialog() } },
       { label: 'Edit a CSV file (not implemented yet!)', enabled: false },
-      { label: 'Check configuration and data', enabled: false, accelerator: 'CmdOrCtrl+C', click: function () { checkWorkbenchConfig() } },
     ]}
   ]
 
@@ -36,6 +35,7 @@ function openConfigFileDialog () {
 }
 
 function openCSVFileDialog () {
+  // Functionality not yet complete.
 }
 
 function createWindow () {
@@ -57,18 +57,28 @@ function createWindow () {
   // Execute workbench.
   const ipc = electron.ipcMain
   ipc.on('asynchronous-message', function (event, arg) {
-    console.log(store.get('workbench.current-config-file'))
     if (typeof store.get('workbench.current-config-file') == "undefined") {
       event.sender.send('workbench-config-file', 'No configuration file selected.')
     }
 
+    var workbenchArgs = ['--config', store.get('workbench.current-config-file')]
+
     let {PythonShell} = require('python-shell');
+    if (arg == 'check') {
+      workbenchArgs = ['--config', store.get('workbench.current-config-file'), '--check']
+    }
+
     let options = {
       mode: 'text',
       pythonOptions: ['-u'],
-      args: ['--config', store.get('workbench.current-config-file')]
+      args: workbenchArgs
     }
-    event.sender.send('workbench-config-file', 'Using configuration file ' + store.get('workbench.current-config-file'))
+    
+    if (arg == 'check') {
+      event.sender.send('workbench-config-file', 'Checking configuration file ' + store.get('workbench.current-config-file')) + ' and data'
+    } else {
+      event.sender.send('workbench-config-file', 'Running task using configuration file ' + store.get('workbench.current-config-file'))
+    }
 
     let shell = new PythonShell(store.get('workbench.path-to-workbench'), options);
     shell.on('message', function (message) {
@@ -76,7 +86,11 @@ function createWindow () {
     });
 
     shell.on('close', function (message) {
-      event.sender.send('workbench-exit', 'Islandora Workbench has finished.')
+      if (arg == 'check') {
+        event.sender.send('workbench-exit', 'Islandora Workbench has finished checking configuration and data.')
+      } else {
+        event.sender.send('workbench-exit', 'Islandora Workbench has finished.')
+      }
     });
   })
 
