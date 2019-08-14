@@ -23,9 +23,9 @@ ipc.on('asynchronous-reply', function (event, arg) {
 })
 
 ipc.on('workbench-exit', function (event, arg) {
-  document.getElementById('workbench-exit').innerHTML = arg 
+  document.getElementById('workbench-exit').innerHTML = arg
 })
 
 ipc.on('workbench-config-file', function (event, arg) {
-  document.getElementById('workbench-config-file').innerHTML = arg 
+  document.getElementById('workbench-config-file').innerHTML = arg
 })

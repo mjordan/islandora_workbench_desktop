@@ -16,6 +16,8 @@ const menu_template = [{
   label: 'Application',
     submenu: [
       { label: 'Set path to workbench', click: function () { openWorkbenchPathDialog() } },
+      { label: 'Return to main window', accelerator: 'CmdOrCtrl+M', click: function () { mainWindow.loadURL('file://' + path.join(__dirname, 'index.html'));} },
+      { label: 'View log file', accelerator: 'CmdOrCtrl+L', click: function () { mainWindow.loadURL('file://' + path.join(__dirname, 'workbench.log'));} },
       { label: 'Quit', accelerator: 'CmdOrCtrl+Q', role: 'quit' }
     ]},
     {
@@ -73,7 +75,7 @@ function createWindow () {
       pythonOptions: ['-u'],
       args: workbenchArgs
     }
-    
+
     if (arg == 'check') {
       event.sender.send('workbench-config-file', 'Checking configuration file ' + store.get('workbench.current-config-file')) + ' and data'
     } else {

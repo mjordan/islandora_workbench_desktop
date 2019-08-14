@@ -48,6 +48,14 @@ If you ran a create task (for example), the nodes and media will be in your Isla
 
 ![Workbench Desktop with output](docs/images/content.png)
 
+### Viewing the Workbench log
+
+To view Workbench's log file, open the "Applicaiton" menu and choose "View log file", or hit Ctrl-l (L). The log (which currently must be in the default location) will appear:
+
+![Workbench Desktop with output](docs/images/workbench_desktop_view_log.png)
+
+To return to the main window, open the "Applicaiton" menu and choose "Return to main window", or hit Ctrl-m.
+
 
 ## License
 
