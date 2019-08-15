@@ -1,14 +1,10 @@
 // Modules to control application life and create native browser window
-const {app, BrowserWindow, Menu} = require('electron')
-const electron = require('electron')
+const {ipcMain, dialog, app, BrowserWindow, Menu} = require('electron')
 const path = require('path')
-
 const yaml = require('js-yaml');
 const fs = require('fs');
-
-const { dialog } = require('electron')
-
 const Store = require('electron-store');
+
 const store = new Store();
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -31,7 +27,7 @@ const menu_template = [{
       { label: 'Edit a configuration file (not implemented yet!)', enabled: false },
       { label: 'Edit a CSV file (not implemented yet!)', enabled: false },
     ]}
-  ]
+]
 
 function openWorkbenchPathDialog () {
   dialog.showOpenDialog(null, { properties: ['openFile'] }, (filePaths) => { store.set('workbench.path-to-workbench', filePaths[0]); } )
@@ -48,7 +44,7 @@ function openCSVFileDialog () {
 function createWindow () {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 800,
+    width: 1000,
     height: 600,
     show: false,
     webPreferences: {
@@ -62,7 +58,7 @@ function createWindow () {
   // mainWindow.webContents.openDevTools()
 
   // Execute workbench.
-  const ipc = electron.ipcMain
+  const ipc = ipcMain
   ipc.on('asynchronous-message', function (event, arg) {
     if (typeof store.get('workbench.current-config-file') == "undefined") {
       event.sender.send('workbench-config-file', 'No configuration file selected.')
