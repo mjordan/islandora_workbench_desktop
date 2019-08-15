@@ -3,6 +3,9 @@ const {app, BrowserWindow, Menu} = require('electron')
 const electron = require('electron')
 const path = require('path')
 
+const yaml = require('js-yaml');
+const fs = require('fs');
+
 const { dialog } = require('electron')
 
 const Store = require('electron-store');
@@ -63,6 +66,8 @@ function createWindow () {
   ipc.on('asynchronous-message', function (event, arg) {
     if (typeof store.get('workbench.current-config-file') == "undefined") {
       event.sender.send('workbench-config-file', 'No configuration file selected.')
+    } else {
+      var config = yaml.safeLoad(fs.readFileSync(store.get('workbench.current-config-file'), 'utf8'));
     }
 
     var workbenchArgs = ['--config', store.get('workbench.current-config-file')]
@@ -79,9 +84,9 @@ function createWindow () {
     }
 
     if (arg == 'check') {
-      event.sender.send('workbench-config-file', 'Checking configuration file ' + store.get('workbench.current-config-file')) + ' and data'
+      event.sender.send('workbench-config-file', 'Checking configuration file ' + store.get('workbench.current-config-file') + ' for "' + config.task + '" task and data.')
     } else {
-      event.sender.send('workbench-config-file', 'Running task using configuration file ' + store.get('workbench.current-config-file'))
+      event.sender.send('workbench-config-file', 'Running task using configuration file ' + store.get('workbench.current-config-file') + ' for "' + config.task + '" task.')
     }
 
     let shell = new PythonShell(store.get('workbench.path-to-workbench'), options);
@@ -91,9 +96,9 @@ function createWindow () {
 
     shell.on('close', function (message) {
       if (arg == 'check') {
-        event.sender.send('workbench-exit', 'Islandora Workbench has finished checking configuration and data.')
+        event.sender.send('workbench-exit', 'Islandora Workbench has finished checking configuration  for "' + config.task + '" task and data.')
       } else {
-        event.sender.send('workbench-exit', 'Islandora Workbench has finished.')
+        event.sender.send('workbench-exit', 'Islandora Workbench has finished "' + config.task + '" task.')
       }
     });
   })

@@ -1,6 +1,6 @@
 # Islandora Workbench Desktop
 
-A proof of concept illustrating how an Electron application can be run on top of the [Islandora Workbench](https://github.com/mjordan/islandora_workbench) command-line tool. 
+Desktop application that provides a graphical user interface for the [Islandora Workbench](https://github.com/mjordan/islandora_workbench) command-line tool. 
 
 ## Requirements
 
