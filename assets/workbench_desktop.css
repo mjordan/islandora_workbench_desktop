@@ -1,0 +1,14 @@
+body {
+  background-color: #2D2D30;
+  color: #ccc;
+}
+p {
+  font-family: sans-serif;
+  padding: .5rem;
+}
+button {
+  font-family: sans-serif;
+  font-weight: bold;
+  padding: .5rem;
+  background-color: #ccc;
+}

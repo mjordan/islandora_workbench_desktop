@@ -47,7 +47,7 @@ function createWindow () {
     width: 1000,
     height: 600,
     show: false,
-    icon: __dirname + '/islandora_workbench_desktop_icon.png',
+    icon: __dirname + '/assets/islandora_workbench_desktop_icon.png',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: true
