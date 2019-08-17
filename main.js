@@ -1,5 +1,5 @@
 // Modules to control application life and create native browser window
-const {ipcMain, dialog, app, BrowserWindow, Menu} = require('electron')
+const {ipcMain, dialog, app, BrowserWindow, Menu, net} = require('electron')
 const path = require('path')
 const yaml = require('js-yaml');
 const fs = require('fs');
@@ -69,35 +69,50 @@ function createWindow () {
 
     var workbenchArgs = ['--config', store.get('workbench.current-config-file')]
 
-    let {PythonShell} = require('python-shell');
-    if (arg == 'check') {
-      workbenchArgs = ['--config', store.get('workbench.current-config-file'), '--check']
+    // Issue #10.
+    islandoraIsReady = host_response = ping_host(config)
+    // If islandoraIsReady is false, show user this dialog. Its OK button's return is 0,
+    // which will prevent workbench from running.
+    if (!islandoraIsReady) {
+      islandoraIsReady = dialog.showMessageBoxSync(mainWindow, { type: 'warning', message: "Workbench can't connect to Islandora.",
+        detail: 'Please check the host, username, and password values in your configuration file.', buttons: ['OK']})
     }
 
-    let options = {
-      mode: 'text',
-      pythonOptions: ['-u'],
-      args: workbenchArgs
-    }
-
-    if (arg == 'check') {
-      event.sender.send('workbench-config-file', 'Checking configuration file ' + store.get('workbench.current-config-file') + ' for "' + config.task + '" task and data.')
-    } else {
-      event.sender.send('workbench-config-file', 'Running task using configuration file ' + store.get('workbench.current-config-file') + ' for "' + config.task + '" task.')
-    }
-
-    let shell = new PythonShell(store.get('workbench.path-to-workbench'), options);
-    shell.on('message', function (message) {
-      event.sender.send('asynchronous-reply', message)
-    });
-
-    shell.on('close', function (message) {
+    if (islandoraIsReady) {
+      let {PythonShell} = require('python-shell');
       if (arg == 'check') {
-        event.sender.send('workbench-exit', 'Islandora Workbench has finished checking configuration  for "' + config.task + '" task and data.')
-      } else {
-        event.sender.send('workbench-exit', 'Islandora Workbench has finished "' + config.task + '" task.')
+        workbenchArgs = ['--config', store.get('workbench.current-config-file'), '--check']
       }
-    });
+
+      let options = {
+        mode: 'text',
+        pythonOptions: ['-u'],
+        args: workbenchArgs
+      }
+
+      if (arg == 'check') {
+        event.sender.send('workbench-config-file', 'Checking configuration file ' +
+          store.get('workbench.current-config-file') + ' for "' + config.task + '" task and data.')
+      } else {
+        event.sender.send('workbench-config-file', 'Running task using configuration file ' +
+          store.get('workbench.current-config-file') + ' for "' + config.task + '" task.')
+      }
+
+      let shell = new PythonShell(store.get('workbench.path-to-workbench'), options);
+      shell.on('message', function (message) {
+        event.sender.send('asynchronous-reply', message)
+      });
+
+      shell.on('close', function (message) {
+        if (arg == 'check') {
+          event.sender.send('workbench-exit', 'Islandora Workbench has finished checking configuration  for "' +
+            config.task + '" task and data.')
+        } else {
+          event.sender.send('workbench-exit', 'Islandora Workbench has finished "' + config.task + '" task.')
+        }
+      });
+    }
+
   })
 
   // Emitted when the window is closed.
@@ -112,6 +127,26 @@ function createWindow () {
     mainWindow.show(); 
     mainWindow.focus(); 
   });
+}
+
+function ping_host(config) {
+  var responseStatusCode = null
+  const request = net.request(config.host)
+  request.on('response', (response) => {
+    response.on('error', (error) => {
+      console.log(`ERROR: ${JSON.stringify(error)}`)
+      return 0;
+    })
+    console.log(`STATUS: ${response.statusCode}`);
+    if (response.statusCode != 200) {
+      return 0;
+    }    
+  })
+  request.on('login', (authInfo, callback) => {
+    callback('username', 'password')
+  })
+  request.end()
+  return 1;
 }
 
 // This method will be called when Electron has finished
