@@ -69,15 +69,16 @@ function createWindow () {
 
     var workbenchArgs = ['--config', store.get('workbench.current-config-file')]
 
-    // Issue #10.
-    islandoraIsReady = host_response = ping_host(config)
-    // If islandoraIsReady is false, show user this dialog. Its OK button's return is 0,
-    // which will prevent workbench from running.
+    // Issue #10. 
+    islandoraIsReady = ping_islandora(config)
+    console.log(islandoraIsReady)
+    // If islandoraIsReady is false, show user this dialog.
     if (!islandoraIsReady) {
-      islandoraIsReady = dialog.showMessageBoxSync(mainWindow, { type: 'warning', message: "Workbench can't connect to Islandora.",
+      dialog.showMessageBoxSync(mainWindow, { type: 'warning', message: "Workbench can't connect to Islandora.",
         detail: 'Please check the host, username, and password values in your configuration file.', buttons: ['OK']})
     }
 
+    // If islandoraIsReady is true, execture workbench.
     if (islandoraIsReady) {
       let {PythonShell} = require('python-shell');
       if (arg == 'check') {
@@ -129,24 +130,22 @@ function createWindow () {
   });
 }
 
-function ping_host(config) {
-  var responseStatusCode = null
-  const request = net.request(config.host)
-  request.on('response', (response) => {
-    response.on('error', (error) => {
-      console.log(`ERROR: ${JSON.stringify(error)}`)
-      return 0;
-    })
-    console.log(`STATUS: ${response.statusCode}`);
-    if (response.statusCode != 200) {
-      return 0;
-    }    
-  })
-  request.on('login', (authInfo, callback) => {
-    callback('username', 'password')
-  })
-  request.end()
-  return 1;
+/**
+ * Returs true if we can connect and log into Islandora, false otherwise.
+ *
+ * Does not currently work.
+ */
+function ping_islandora(config) {
+  var http = require('http');
+  http.get('http://localhost:800', function (res) {
+    // @todo: Check response code, etc.
+  }).on('error', function(e) {
+    return false;
+  });
+  // @todo: Log in to make sure that credentials are valid.
+
+  console.log("DEBUG: Reached end of ping_islandora function.")
+  return true;
 }
 
 // This method will be called when Electron has finished
