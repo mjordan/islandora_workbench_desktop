@@ -115,6 +115,15 @@ function createWindow () {
     }
 
   })
+  
+  let editorWindow
+  ipc.on('add-editor-window', () => {
+    if (!editorWindow) {
+      editorWindow = new BrowserWindow();
+      editorWindow.loadFile(path.join('renderer','editor.html'))
+      editorWindow.webContents.openDevTools();
+    }
+  })
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
