@@ -116,14 +116,6 @@ function createWindow () {
 
   })
   
-  let editorWindow
-  ipc.on('add-editor-window', () => {
-    if (!editorWindow) {
-      editorWindow = new BrowserWindow();
-      editorWindow.loadFile(path.join('renderer','editor.html'))
-      editorWindow.webContents.openDevTools();
-    }
-  })
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
@@ -141,15 +133,26 @@ function createWindow () {
 
 /**
  * Returs true if we can connect and log into Islandora, false otherwise.
- *
- * Does not currently work.
  */
 function ping_islandora(config) {
+  
+  let jsonApiPrefix = config.host + '/jsonapi/';
+  let jsonAPIAuth = config.username + ':' + config.password;
+  
   var http = require('http');
-  http.get('http://localhost:800', function (res) {
-    // @todo: Check response code, etc.
-  }).on('error', function(e) {
-    return false;
+  http.get(jsonApiPrefix, {auth: jsonAPIAuth.toString('base64')}, function (res) {
+    const { statusCode } = res;
+    let error;
+    if (statusCode !== 200) {
+      error = new Error('Request Failed.\n' +
+                        `Status Code: ${statusCode}`);
+    }
+    if (error) {
+      console.error(error.message);
+      // Consume response data to free up memory
+      res.resume();
+      return false;
+    }
   });
   // @todo: Log in to make sure that credentials are valid.
 
