@@ -140,7 +140,7 @@ function ping_islandora(config) {
   let jsonAPIAuth = config.username + ':' + config.password;
   
   var http = require('http');
-  http.get(jsonApiPrefix, {auth: jsonAPIAuth.toString('base64')}, function (res) {
+  let success = http.get(jsonApiPrefix, {auth: jsonAPIAuth.toString('base64')}, function (res) {
     const { statusCode } = res;
     let error;
     if (statusCode !== 200) {
@@ -157,7 +157,7 @@ function ping_islandora(config) {
   // @todo: Log in to make sure that credentials are valid.
 
   console.log("DEBUG: Reached end of ping_islandora function.")
-  return true;
+  return success;
 }
 
 // This method will be called when Electron has finished
