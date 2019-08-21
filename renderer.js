@@ -5,6 +5,7 @@
 const ipc = require('electron').ipcRenderer
 const asyncRunButton = document.getElementById('runButton')
 const asyncCheckButton = document.getElementById('checkButton')
+const asyncShowEditorButton = document.getElementById('showEditorButton')
 
 asyncCheckButton.addEventListener('click', function () {
   document.getElementById('workbench-exit').innerHTML = ''
@@ -16,6 +17,10 @@ asyncRunButton.addEventListener('click', function () {
   document.getElementById('workbench-exit').innerHTML = ''
   document.getElementById('workbench-output').innerHTML = ''
   ipc.send('asynchronous-message', '')
+})
+
+asyncShowEditorButton.addEventListener('click', function () {
+  ipc.send('add-editor-window')
 })
 
 ipc.on('asynchronous-reply', function (event, arg) {

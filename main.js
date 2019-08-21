@@ -114,6 +114,15 @@ function createWindow () {
       });
     }
 
+  let editorWindow
+  ipc.on('add-editor-window', () => {
+    if (!editorWindow) {
+      editorWindow = new BrowserWindow();
+      editorWindow.loadFile(path.join('renderer','editor.html'))
+      
+      // FOR DEBUGGING. REMOVE BEFORE PR.
+      editorWindow.webContents.openDevTools();
+    }
   })
 
   // Emitted when the window is closed.
@@ -141,11 +150,14 @@ function ping_islandora(config) {
     // @todo: Check response code, etc.
   }).on('error', function(e) {
     return false;
+    });
   });
+  
+  return request;
   // @todo: Log in to make sure that credentials are valid.
 
-  console.log("DEBUG: Reached end of ping_islandora function.")
-  return true;
+  // console.log("DEBUG: Reached end of ping_islandora function.")
+  // return success;
 }
 
 // This method will be called when Electron has finished
