@@ -71,8 +71,6 @@ function createWindow () {
 
     // Issue #10. 
     ping_islandora(config).then((jsonApiJson) => {
-      console.log(jsonApiJson)
-
       let {PythonShell} = require('python-shell');
       if (arg == 'check') {
         workbenchArgs = ['--config', store.get('workbench.current-config-file'), '--check']
