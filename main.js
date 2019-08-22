@@ -70,16 +70,9 @@ function createWindow () {
     var workbenchArgs = ['--config', store.get('workbench.current-config-file')]
 
     // Issue #10. 
-    islandoraIsReady = ping_islandora(config)
-    console.log(islandoraIsReady)
-    // If islandoraIsReady is false, show user this dialog.
-    if (!islandoraIsReady) {
-      dialog.showMessageBoxSync(mainWindow, { type: 'warning', message: "Workbench can't connect to Islandora.",
-        detail: 'Please check the host, username, and password values in your configuration file.', buttons: ['OK']})
-    }
+    ping_islandora(config).then((jsonApiJson) => {
+      console.log(jsonApiJson)
 
-    // If islandoraIsReady is true, execture workbench.
-    if (islandoraIsReady) {
       let {PythonShell} = require('python-shell');
       if (arg == 'check') {
         workbenchArgs = ['--config', store.get('workbench.current-config-file'), '--check']
@@ -112,10 +105,10 @@ function createWindow () {
           event.sender.send('workbench-exit', 'Islandora Workbench has finished "' + config.task + '" task.')
         }
       });
-    }
-
-  })
-
+    }).catch(e => dialog.showMessageBoxSync(mainWindow, { type: 'warning', message: "Workbench can't connect to Islandora.",
+      detail: e.toString(), buttons: ['OK']}));
+  });
+  
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
     // Dereference the window object, usually you would store windows
@@ -131,21 +124,54 @@ function createWindow () {
 }
 
 /**
- * Returs true if we can connect and log into Islandora, false otherwise.
- *
- * Does not currently work.
+ * Returs a promise with JSON:API object if we can connect; otherwise catch the error.
  */
-function ping_islandora(config) {
+async function ping_islandora(config) {
+  
+  let jsonApiPrefix = config.host + '/jsonapi/';
+  let jsonAPIAuth = config.username + ':' + config.password;
+  
   var http = require('http');
-  http.get('http://localhost:800', function (res) {
-    // @todo: Check response code, etc.
-  }).on('error', function(e) {
-    return false;
+  request = await new Promise((resolve, reject) => {
+    const req = http.get(jsonApiPrefix, {auth: jsonAPIAuth.toString('base64')}, function (res) {
+      const { statusCode } = res;
+      const contentType = res.headers['content-type'];
+
+      let error;
+      if (statusCode !== 200) {
+        error = new Error('Request Failed.\n' +
+                          `Status Code: ${statusCode}`);
+      } else if (!/^application\/(vnd\.api\+)?json/.test(contentType)) {
+        error = new Error('Invalid content-type.\n' +
+                          `Expected application/json but received ${contentType}`);
+      }
+      if (error) {
+        console.error(error.message);
+        // Consume response data to free up memory
+        res.resume();
+        reject(error);
+      }
+      
+      res.setEncoding('utf8');
+      let rawData = '';
+      res.on('data', (chunk) => { rawData += chunk; });
+      res.on('end', () => {
+        try {
+          const parsedData = JSON.parse(rawData);
+          resolve(parsedData);
+        } catch (e) {
+          console.error(e.message);
+          reject(e);
+        }
+      });
+    }).on('error', (e) => {
+      console.error(`Got error: ${e.message}`);
+      reject(e);
+    });
   });
-  // @todo: Log in to make sure that credentials are valid.
 
   console.log("DEBUG: Reached end of ping_islandora function.")
-  return true;
+  return request;
 }
 
 // This method will be called when Electron has finished
