@@ -107,6 +107,18 @@ function createWindow () {
       detail: e.toString(), buttons: ['OK']}));
   });
   
+  let editorWindow
+  ipc.on('add-editor-window', () => {
+    if (!editorWindow) {
+      editorWindow = new BrowserWindow();
+      editorWindow.loadFile(path.join('renderer','editor.html'))
+
+      // FOR DEBUGGING. REMOVE BEFORE PR.
+      editorWindow.webContents.openDevTools();
+    }
+  })
+  
+  
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
     // Dereference the window object, usually you would store windows
