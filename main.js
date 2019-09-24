@@ -125,6 +125,17 @@ function createWindow () {
       editorWindow.on('closed', () => {
         editorWindow = null;
       });
+      
+      ipc.on('save-csv', (event, csv) => {
+        let csvPath = path.join(app.getAppPath(), 'csv-to-load.csv');
+        dialog.showMessageBoxSync(editorWindow, {
+          type: 'info',
+          title: 'Saving CSV',
+          message: 'Saving the current CSV for loading into Islandora.',
+          detail: csvPath,
+        });
+        fs.writeFileSync(csvPath,csv,'utf-8');
+      })
     }
   });
 

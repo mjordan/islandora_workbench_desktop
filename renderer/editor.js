@@ -100,3 +100,11 @@ if (xhr.upload) {
     // remove submit button
     submitbutton.style.display = "none";
 }
+
+// EXPORT CSV
+
+const ipc = require('electron').ipcRenderer;
+
+function saveCSV(csv) {
+    ipc.send('save-csv', csv);
+}

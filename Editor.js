@@ -1,3 +1,5 @@
+const Papa = require('papaparse');
+
 const widgetMap = {
     // Only includes non-text items.
     boolean_checkbox: 'checkbox',
@@ -187,21 +189,26 @@ class Editor {
                 type: 'i',
                 content: 'undo',
                 onclick: function () {
-                    spreadsheet.undo();
+                    editor.spreadsheet.undo();
                 }
             },
             {
                 type: 'i',
                 content: 'redo',
                 onclick: function () {
-                    spreadsheet.redo();
+                    editor.spreadsheet.redo();
                 }
             },
             {
                 type: 'i',
                 content: 'save',
                 onclick: function () {
-                    spreadsheet.download();
+                    // We copy the data so we can add the header separately.
+                    let data = Array.from(editor.spreadsheet.getData());
+                    // Field machine names as headers.
+                    data.unshift(editor.currentColumnDefinition.map(x => x.id));
+                    // Serialize it.
+                    saveCSV(Papa.unparse(data, {skipEmptyLines: true}));
                 }
             },
             {
