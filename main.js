@@ -103,7 +103,7 @@ function createWindow () {
     }).catch(e => dialog.showMessageBoxSync(mainWindow, { type: 'warning', message: "Workbench can't connect to Islandora.",
       detail: e.toString(), buttons: ['OK']}));
   });
-  
+
   let editorWindow;
   ipc.on('add-editor-window', () => {
     if (!editorWindow) {
@@ -127,8 +127,7 @@ function createWindow () {
       });
     }
   });
-  
-  
+
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
     // Dereference the window object, usually you would store windows
