@@ -3,9 +3,8 @@
 /*jslint node: true*/
 /*global Editor*/
 
-const fs = require('fs');
-const path = require('path');
-const walk = require('walk');
+
+// LOAD CONTENT TYPES FORM
 
 const contentTypesSelect = document.getElementById('content_type_select');
 const contentTypesButton = document.getElementById('content_types_button');
@@ -22,6 +21,11 @@ const fileselect = document.getElementById("fileselect");
 const filedrag = document.getElementById("filedrag");
 const submitbutton = document.getElementById("submitbutton");
 
+// LOAD FILES FORM
+
+const fs = require('fs');
+const path = require('path');
+const walk = require('walk');
 
 // file drag hover
 function fileDragHover(e) {
@@ -50,12 +54,10 @@ function fileSelectHandler(e) {
   Array.from(files).forEach( function (file) {
     var walker = walk.walk(file.path);
     walker.on("file", function (root, fileStats, next) {
-      // console.log('walker file: ',root,fileStats);
         let row = new Array(editor.currentColumnDefinition.length).fill('');
         if (pathColumn > -1) {
           row[pathColumn] = path.join(root, fileStats.name);
         }
-        //Extent, Possible TODO: human-friendly extent.
         if (extentColumn > -1) {
           row[extentColumn] = fileStats.size + ' bytes';
         }
@@ -66,7 +68,6 @@ function fileSelectHandler(e) {
       next();
     });
     walker.on("end", function () {
-      // console.log("Gathered files data:",data);
         editor.loadData(data, editor.currentColumnDefinition);
     });
   });

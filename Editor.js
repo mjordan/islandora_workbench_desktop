@@ -65,15 +65,14 @@ class Editor {
   
   // Load Spreadsheet based on content type
   loadContentType() {
-    console.log('IN LOAD CONTENT TYPE');
       let contentType = document.getElementById('content_type_select').value;
-
+      
+      // Initiate field promises.
       let formFields = fetch(this.jsonApiPrefix + 'entity_form_display/entity_form_display?filter[type][condition][path]=bundle&filter[type][condition][value]=' + contentType, {
               headers: this.jsonApiHeaders
           })
           .then( (response) => response.json() )
           .then( (jsonapiResponse) => jsonapiResponse.data[0].attributes.content );
-
       let baseFieldOverrides = fetch(this.jsonApiPrefix + 'base_field_override/base_field_override?filter[type][condition][path]=bundle&filter[type][condition][value]=' + contentType, {
               headers: this.jsonApiHeaders
           })
@@ -90,7 +89,6 @@ class Editor {
               });
               return fields;
           });
-
       let fieldSettings = fetch(this.jsonApiPrefix + 'field_config/field_config?filter[type][condition][path]=bundle&filter[type][condition][value]=' + contentType, {
               headers: this.jsonApiHeaders
           })
@@ -107,12 +105,11 @@ class Editor {
               });
               return fields;
           });
-      console.log('COLLECTING ALL THE PROMISES...')
+      
+      // Gather the field promises.
       Promise.all([formFields, baseFieldOverrides, fieldSettings]).then(function (promises) {
           let formFields = promises[0];
           let fieldSettings = { ...promises[1], ...promises[2] };
-          console.log('Form Fields', formFields);
-          console.log('Field Settings', fieldSettings);
 
           let columns = [];
           Object.keys(formFields).forEach(function(field) {
@@ -171,11 +168,9 @@ class Editor {
               width: 120
           });
 
-          let data = [Array(columns.length).fill('')];
-          console.log('Spreadsheet columns:', columns);
-          editor.loadData(data, columns);
+          // Initialize spreadsheet with empty table data.
+          editor.loadData([Array(columns.length).fill('')], columns);
       });
-      console.log('after promises definition.');
     }
   
   loadData (data, columns = []) {
@@ -253,15 +248,13 @@ class Editor {
         jexcelConfig.columns = columns;
       }
       // Load the spreadsheet.
-      // this.spreadsheetDiv.innerHTML = '';
       while(this.spreadsheetDiv.firstChild) {
         this.spreadsheetDiv.removeChild(this.spreadsheetDiv.firstChild);
       }
-      console.log('spreadsheetDiv', this.spreadsheetDiv);
       this.spreadsheet = jexcel(this.spreadsheetDiv, jexcelConfig);
+
     } else if (typeof data === 'string') {
-      // jexcelConfig.csv = data;
-      
+
       if (!ping_islandora()){
         alert("Could not find Islandora w/ JSON:API to load "+data);
         return false;
@@ -272,8 +265,6 @@ class Editor {
           })
           .then( (response) => response.json() )
           .then( function(jsonapiResponse){
-              // console.log('View Fields', jsonapiResponse.data[0].attributes.display.default.fields);
-              console.log('View Fields', jsonapiResponse.data[0].attributes.display.default.display_options);
               return jsonapiResponse.data[0].attributes.display.default.display_options.fields;
           });
 
@@ -319,14 +310,10 @@ class Editor {
           let viewFields = promises[0];
           let fieldSettings = { ...promises[1], ...promises[2] };
           let viewData = promises[3];
-          console.log('View Fields', viewFields);
-          console.log('Field Settings', fieldSettings);
-          console.log('View Data', viewData);
 
           let columns = [];
           let dropdownPromises = [];
           Object.keys(viewFields).forEach(function(field) {
-            // console.log('Processing field '+field);
                 let column = {
                   id: field,
                   type: 'text',
@@ -384,8 +371,6 @@ class Editor {
             });
             data.push(row);
           });
-          console.log('Processed Columns', columns);
-          console.log('Processed data', data);
           jexcelConfig.data = data;
           jexcelConfig.columns = columns;
 
