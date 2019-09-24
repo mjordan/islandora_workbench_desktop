@@ -15,9 +15,9 @@ const menu_template = [{
   label: 'Application',
     submenu: [
       { label: 'Set path to workbench', click: function () { openWorkbenchPathDialog() } },
-      { label: 'Return to main window', accelerator: 'CmdOrCtrl+M', click: function () { mainWindow.loadURL('file://' + path.join(__dirname, 'index.html'));} },
+      { label: 'Return to main window', accelerator: 'CmdOrCtrl+M', click: function () { mainWindow.loadURL('file://' + path.join(__dirname, 'renderer/index.html'));} },
       { label: 'View log file', accelerator: 'CmdOrCtrl+L', click: function () { mainWindow.loadURL('file://' + path.join(__dirname, 'workbench.log'));} },
-      { label: 'Clear main window', click: function () { mainWindow.loadURL('file://' + path.join(__dirname, 'index.html'));} },
+      { label: 'Clear main window', click: function () { mainWindow.loadURL('file://' + path.join(__dirname, 'renderer/index.html'));} },
       { label: 'Quit', accelerator: 'CmdOrCtrl+Q', role: 'quit' }
     ]},
     {
@@ -53,10 +53,7 @@ function createWindow () {
       nodeIntegration: true
     }
   })
-  mainWindow.loadFile('index.html')
-
-  // Open the DevTools.
-  // mainWindow.webContents.openDevTools()
+  mainWindow.loadFile('renderer/index.html')
 
   // Execute workbench.
   const ipc = ipcMain
@@ -107,16 +104,29 @@ function createWindow () {
       detail: e.toString(), buttons: ['OK']}));
   });
   
-  let editorWindow
+  let editorWindow;
   ipc.on('add-editor-window', () => {
     if (!editorWindow) {
-      editorWindow = new BrowserWindow();
-      editorWindow.loadFile(path.join('renderer','editor.html'))
+      editorWindow = new BrowserWindow({
+        width: 1000,
+        height: 600,
+        icon: __dirname + '/assets/islandora_workbench_desktop_icon.png',
+        webPreferences: {
+          preload: path.join(__dirname, 'preload.js'),
+          nodeIntegration: true
+        }
+      });
+      editorWindow.loadFile(path.join('renderer','editor.html'));
 
       // FOR DEBUGGING. REMOVE BEFORE PR.
       editorWindow.webContents.openDevTools();
+      
+      // Clean up the window when closed.
+      editorWindow.on('closed', () => {
+        editorWindow = null;
+      });
     }
-  })
+  });
   
   
   // Emitted when the window is closed.

@@ -3,38 +3,30 @@
   <head>
     <meta charset="utf-8">
     <title>Upload Editor</title>
-    <script src="../node_modules/jexcel/dist/jexcel.js"></script>
-    <script src="../node_modules/jsuites/dist/jsuites.js"></script>
-    <!--Just for demo... --><script src="initialize.js"></script>
-    <!-- <script src="../Editor.js"></script> -->
      
-    <!-- <script src="editor.js"></script> -->
-
+    <link rel="stylesheet" href="editor.css">
     <link rel="stylesheet" href="../assets/workbench_desktop.css">
     <link rel="stylesheet" href="../node_modules/jexcel/dist/jexcel.css" type="text/css" />
     <link rel="stylesheet" href="../node_modules/jsuites/dist/jsuites.css" type="text/css" />
     <link rel="stylesheet" href="../node_modules/material-design-icons/iconfont/material-icons.css" type="text/css" />
-    <style>
-      .jexcel thead tr td {
-        text-transform: capitalize;
-      }
-    </style>
+
+    
+    <script src="../node_modules/jsuites/dist/jsuites.js"></script>
+    <script src="../node_modules/jexcel/dist/jexcel.js"></script>
+    <script src="../Editor.js"></script>
+
   </head>
   <body>
     <h1>Upload Editor</h1>
-<!-- DEMO REPLACING WITH WIZARD -->
+<!-- DEMO TO BE REPLACED WITH WIZARD -->
     <h2>Setup Spreadsheet</h2>
-    <form id='load_content_type' action='#'>
       <fieldset>
           <legend>Load Content Type</legend>
           <label for='content_type_select'>Select Content Type to load:</label>
           <select id='content_type_select'></select>
-          <script type="text/javascript">listContentTypes()</script>
-          <button onclick="loadContentType()">Load</button>
+          <button id='content_types_button'>Load</button>
       </fieldset>
-    </form>
 
-    <form id='load_files'>
       <fieldset>
         <legend>Load Files</legend>
         <div>
@@ -46,14 +38,12 @@
           <button type='submit'>Load</button>
         </div>
       </fieldset>
-    </form>
 <!-- END DEMO -->
     <div id="spreadsheet"><em>No spreadsheet has been loaded yet.</em></div>
 
+    <script src="editor.js"></script>
+    <!-- <script src="filedrag.js"></script> -->
   </body>
-  <script src="filedrag.js"></script>
-  <script>
-  // let editor = new Editor();
-  // editor.loadData();
-  </script>
+
+
 </html>

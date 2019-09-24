@@ -1,3 +1,10 @@
+.jexcel thead tr td {
+  text-transform: capitalize;
+}
+.jexcel {
+  color: black;
+}
+
 #filedrag
 {
 	display: none;
