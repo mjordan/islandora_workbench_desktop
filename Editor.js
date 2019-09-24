@@ -39,17 +39,13 @@ class Editor {
 
   currentColumnDefinition = [];
 
-  constructor (spreadsheetDiv) {
+  constructor (spreadsheetDiv, jsonApiConfig = {host: 'http://localhost:8000', username: 'admin', password: 'islandora'}) {
     
     this.spreadsheetDiv = document.getElementById(spreadsheetDiv)
     
-    // @TODO: create an IslandoraConnector singleton that will store 
-    // JSON:API connection information that we can pass requests through
-    // with configurable URL and Authentication.
-
-    this.jsonApiPrefix = 'http://localhost:8000/jsonapi/';
+    this.jsonApiPrefix = jsonApiConfig.host + '/jsonapi/';
     this.jsonApiHeaders = new Headers();
-    this.jsonApiHeaders.append('Authorization', 'Basic ' + btoa('admin' + ':' + 'islandora'));
+    this.jsonApiHeaders.append('Authorization', 'Basic ' + btoa(jsonApiConfig.username + ':' + jsonApiConfig.password));
   }
 
   // Populate content types dropdown
