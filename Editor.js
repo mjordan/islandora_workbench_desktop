@@ -40,14 +40,17 @@ class Editor {
   spreadsheet = {};
 
   currentColumnDefinition = [];
+  
+  workbenchConfig = {};
 
-  constructor (spreadsheetDiv, jsonApiConfig = {host: 'http://localhost:8000', username: 'admin', password: 'islandora'}) {
+  constructor (spreadsheetDiv, workbenchConfig = {host: 'http://localhost:8000', username: 'admin', password: 'islandora'}) {
     
-    this.spreadsheetDiv = document.getElementById(spreadsheetDiv)
+    this.spreadsheetDiv = document.getElementById(spreadsheetDiv);
+    this.workbenchConfig = workbenchConfig;
     
-    this.jsonApiPrefix = jsonApiConfig.host + '/jsonapi/';
+    this.jsonApiPrefix = workbenchConfig.host + '/jsonapi/';
     this.jsonApiHeaders = new Headers();
-    this.jsonApiHeaders.append('Authorization', 'Basic ' + btoa(jsonApiConfig.username + ':' + jsonApiConfig.password));
+    this.jsonApiHeaders.append('Authorization', 'Basic ' + btoa(workbenchConfig.username + ':' + workbenchConfig.password));
   }
 
   // Populate content types dropdown
@@ -64,7 +67,7 @@ class Editor {
   // Load Spreadsheet based on content type
   loadContentType() {
       let contentType = document.getElementById('content_type_select').value;
-      
+      this.workbenchConfig.content_type = contentType;
       // Initiate field promises.
       let formFields = fetch(this.jsonApiPrefix + 'entity_form_display/entity_form_display?filter[type][condition][path]=bundle&filter[type][condition][value]=' + contentType, {
               headers: this.jsonApiHeaders
@@ -208,7 +211,7 @@ class Editor {
                     // Field machine names as headers.
                     data.unshift(editor.currentColumnDefinition.map(x => x.id));
                     // Serialize it.
-                    saveCSV(Papa.unparse(data, {skipEmptyLines: true}));
+                    saveCSV(Papa.unparse(data, {skipEmptyLines: true}), editor.workbenchConfig);
                 }
             },
             {
@@ -387,5 +390,9 @@ class Editor {
       alert("Could not load the provided spreadsheet data: "+String(data));
       return false;
     }
+  }
+  
+  setInputDir(dir) {
+    this.workbenchConfig.input_dir = dir;
   }
 }

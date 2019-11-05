@@ -126,15 +126,32 @@ function createWindow () {
         editorWindow = null;
       });
       
-      ipc.on('save-csv', (event, csv) => {
-        let csvPath = path.join(app.getAppPath(), 'csv-to-load.csv');
+      ipc.on('save-csv', (event, csv, config) => {
+        // We also need to build a new configuration file that includes
+        // which content type we selected and the csv path to pass to
+        // the workbench.
+        let configPath = path.join(app.getAppPath(), 'config-to-load.yml');
+        // dialog.showMessageBoxSync(editorWindow, {
+        //   type: 'info',
+        //   title: 'Saving Config',
+        //   message: 'Saving the current config for loading into Islandora.',
+        //   detail: configPath,
+        // });
+        fs.writeFileSync(configPath,yaml.safeDump(config),'utf-8');
+        let csvPath = path.join(config.input_dir, 'metadata.csv');
+        // dialog.showMessageBoxSync(editorWindow, {
+        //   type: 'info',
+        //   title: 'Saving CSV',
+        //   message: 'Saving the current CSV for loading into Islandora.',
+        //   detail: csvPath,
+        // });
+        fs.writeFileSync(csvPath,csv,'utf-8');
         dialog.showMessageBoxSync(editorWindow, {
           type: 'info',
-          title: 'Saving CSV',
-          message: 'Saving the current CSV for loading into Islandora.',
-          detail: csvPath,
+          title: 'Preparing for Load',
+          message: 'Saving the current config for loading into Islandora.',
+          detail: configPath,
         });
-        fs.writeFileSync(csvPath,csv,'utf-8');
       })
     }
   });

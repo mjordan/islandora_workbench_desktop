@@ -31,39 +31,35 @@ contentTypesButton.addEventListener('click', function () {
 });
 
 const fileselect = document.getElementById("fileselect");
-const filedrag = document.getElementById("filedrag");
-const submitbutton = document.getElementById("submitbutton");
 
 // LOAD FILES FORM
 
 const walk = require('walk');
 
-// file drag hover
-function fileDragHover(e) {
-    e.stopPropagation();
-    e.preventDefault();
-    e.target.className = (e.type === "dragover" ? "hover" : "");
-}
-
 // file selection
 function fileSelectHandler(e) {
 
     // cancel event and hover styling
-    fileDragHover(e);
-
-    // fetch FileList object
-    let files = e.target.files || e.dataTransfer.files;
-
+    // fileDragHover(e);
     if (editor.currentColumnDefinition === undefined || editor.currentColumnDefinition === null || editor.currentColumnDefinition.length < 1) {
         alert('Please load a content type before adding files!');
         return false;
     }
+    
+    if (e.target.files.length < 1) {
+        alert('File Select Handler called without selecting a directory!');
+        return false;
+    }
+    let input_dir = e.target.files[0];
+    
     // Build spreadsheet
     let pathColumn = editor.currentColumnDefinition.findIndex((element) => element.id === 'local_path_original');
     let extentColumn = editor.currentColumnDefinition.findIndex((element) => element.id === 'field_extent');
     let data = [];
-    Array.from(files).forEach(function (file) {
-        let walker = walk.walk(file.path);
+    // console.log(input_dir);
+    editor.setInputDir(input_dir.path);
+    (function () {
+        let walker = walk.walk(input_dir.path);
         walker.on("file", function (root, fileStats, next) {
             let row = new Array(editor.currentColumnDefinition.length).fill('');
             if (pathColumn > -1) {
@@ -81,30 +77,17 @@ function fileSelectHandler(e) {
         walker.on("end", function () {
             editor.loadData(data, editor.currentColumnDefinition);
         });
-    });
+    }());
 
 }
 
 // file select
 fileselect.addEventListener("change", fileSelectHandler, false);
 
-// is XHR2 available?
-let xhr = new XMLHttpRequest();
-if (xhr.upload) {
-    // file drop
-    filedrag.addEventListener("dragover", fileDragHover, false);
-    filedrag.addEventListener("dragleave", fileDragHover, false);
-    filedrag.addEventListener("drop", fileSelectHandler, false);
-    filedrag.style.display = "block";
-
-    // remove submit button
-    submitbutton.style.display = "none";
-}
-
 // EXPORT CSV
 
 const ipc = require('electron').ipcRenderer;
 
-function saveCSV(csv) {
-    ipc.send('save-csv', csv);
+function saveCSV(csv, config) {
+    ipc.send('save-csv', csv, config);
 }
