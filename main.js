@@ -126,33 +126,9 @@ function createWindow () {
         editorWindow = null;
       });
       
-      ipc.on('save-csv', (event, csv, config) => {
-        // We also need to build a new configuration file that includes
-        // which content type we selected and the csv path to pass to
-        // the workbench.
-        let configPath = path.join(app.getAppPath(), 'config-to-load.yml');
-        // dialog.showMessageBoxSync(editorWindow, {
-        //   type: 'info',
-        //   title: 'Saving Config',
-        //   message: 'Saving the current config for loading into Islandora.',
-        //   detail: configPath,
-        // });
-        fs.writeFileSync(configPath,yaml.safeDump(config),'utf-8');
-        let csvPath = path.join(config.input_dir, 'metadata.csv');
-        // dialog.showMessageBoxSync(editorWindow, {
-        //   type: 'info',
-        //   title: 'Saving CSV',
-        //   message: 'Saving the current CSV for loading into Islandora.',
-        //   detail: csvPath,
-        // });
-        fs.writeFileSync(csvPath,csv,'utf-8');
-        dialog.showMessageBoxSync(editorWindow, {
-          type: 'info',
-          title: 'Preparing for Load',
-          message: 'Saving the current config for loading into Islandora.',
-          detail: configPath,
-        });
-      })
+      ipc.on('run-workbench', (event, configPath, check = false) => {
+        runWorkbench(configPath, check);
+      });
     }
   });
 
@@ -221,6 +197,54 @@ async function ping_islandora(config) {
   return request;
 }
 
+async function runWorkbench(configPath, check = false) {
+  let config = yaml.safeLoad(fs.readFileSync(configPath, 'utf8'));
+  
+  ping_islandora(config).then((jsonApiJson) => {
+    let {PythonShell} = require('python-shell');
+    let workbenchArgs = ['--config', configPath];
+
+    if (check) {
+      workbenchArgs.push('--check');
+    }
+
+    let options = {
+      mode: 'text',
+      pythonOptions: ['-u'],
+      args: workbenchArgs
+    }
+
+    if (check) {
+      mainWindow.send('workbench-config-file', 'Checking configuration file ' +
+        configPath + ' for "' + config.task + '" task and data.')
+    } else {
+      mainWindow.send('workbench-config-file', 'Running task using configuration file ' +
+        configPath + ' for "' + config.task + '" task.')
+    }
+
+    let shell = new PythonShell(store.get('workbench.path-to-workbench'), options);
+    shell.on('message', function (message) {
+      mainWindow.send('asynchronous-reply', message)
+    });
+
+    shell.on('close', function (message) {
+      if (check) {
+        mainWindow.send('workbench-exit', 'Islandora Workbench has finished checking configuration  for "' +
+          config.task + '" task and data.')
+          dialog.showMessageBox({
+            type: 'info',
+            title: 'Check Completed',
+            message: 'Islandora Workbench has finished checking configuration  for "' +
+              config.task + '" task and data.'
+          });
+      } else {
+        mainWindow.send('workbench-exit', 'Islandora Workbench has finished "' + config.task + '" task.')
+      }
+    });
+  }).catch(e => dialog.showMessageBoxSync(mainWindow, { type: 'warning', message: "Workbench can't connect to Islandora.",
+    detail: e.toString(), buttons: ['OK']}));
+}
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -242,6 +266,3 @@ app.on('activate', function () {
   // dock icon is clicked and there are no other windows open.
   if (mainWindow === null) createWindow()
 })
-
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.

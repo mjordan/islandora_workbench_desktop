@@ -11,6 +11,11 @@ const widgetMap = {
     image: 'image'
 };
 
+let filteredFields = [
+  'translation',
+  'langcode'
+];
+
 // Function to load dropdown boxes with Taxonomy terms.
 // TODO: sort the terms after an update.
 // TODO: jsonapi pagination support
@@ -114,6 +119,11 @@ class Editor {
 
           let columns = [];
           Object.keys(formFields).forEach(function(field) {
+                // Skip the translation field; workbench doesn't support it yet.
+                if (filteredFields.includes(field)) {
+                  return;
+                }
+
                 // Defaults
                 let column = {
                     id: field,
@@ -157,17 +167,18 @@ class Editor {
               return a.weight - b.weight;
           });
           columns.unshift({
-              id: 'local_path_original',
+              id: 'file',
               type: 'text',
               title: 'Original File Path',
               width: 120
           });
-          columns.unshift({
-              id: 'local_thumbnail',
-              type: 'image',
-              title: 'Thumbnail',
-              width: 120
-          });
+          // TODO: Workbench doesn't support a thumbnail column; yet.
+          // columns.unshift({
+          //     id: 'local_thumbnail',
+          //     type: 'image',
+          //     title: 'Thumbnail',
+          //     width: 120
+          // });
 
           // Initialize spreadsheet with empty table data.
           editor.loadData([Array(columns.length).fill('')], columns);
@@ -202,18 +213,18 @@ class Editor {
                     editor.spreadsheet.redo();
                 }
             },
-            {
-                type: 'i',
-                content: 'save',
-                onclick: function () {
-                    // We copy the data so we can add the header separately.
-                    let data = Array.from(editor.spreadsheet.getData());
-                    // Field machine names as headers.
-                    data.unshift(editor.currentColumnDefinition.map(x => x.id));
-                    // Serialize it.
-                    saveCSV(Papa.unparse(data, {skipEmptyLines: true}), editor.workbenchConfig);
-                }
-            },
+            // {
+            //     type: 'i',
+            //     content: 'save',
+            //     onclick: function () {
+            //         // We copy the data so we can add the header separately.
+            //         let data = Array.from(editor.spreadsheet.getData());
+            //         // Field machine names as headers.
+            //         data.unshift(editor.currentColumnDefinition.map(x => x.id));
+            //         // Serialize it.
+            //         saveCSV(Papa.unparse(data, {skipEmptyLines: true}), editor.workbenchConfig);
+            //     }
+            // },
             {
                 type: 'i',
                 content: 'format_align_left',
