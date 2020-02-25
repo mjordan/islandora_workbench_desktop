@@ -15,9 +15,9 @@ const menu_template = [{
   label: 'Application',
     submenu: [
       { label: 'Set path to workbench', click: function () { openWorkbenchPathDialog() } },
-      { label: 'Return to main window', accelerator: 'CmdOrCtrl+M', click: function () { mainWindow.loadURL('file://' + path.join(__dirname, 'index.html'));} },
+      { label: 'Return to main window', accelerator: 'CmdOrCtrl+M', click: function () { mainWindow.loadURL('file://' + path.join(__dirname, 'renderer/index.html'));} },
       { label: 'View log file', accelerator: 'CmdOrCtrl+L', click: function () { mainWindow.loadURL('file://' + path.join(__dirname, 'workbench.log'));} },
-      { label: 'Clear main window', click: function () { mainWindow.loadURL('file://' + path.join(__dirname, 'index.html'));} },
+      { label: 'Clear main window', click: function () { mainWindow.loadURL('file://' + path.join(__dirname, 'renderer/index.html'));} },
       { label: 'Quit', accelerator: 'CmdOrCtrl+Q', role: 'quit' }
     ]},
     {
@@ -53,10 +53,7 @@ function createWindow () {
       nodeIntegration: true
     }
   })
-  mainWindow.loadFile('index.html')
-
-  // Open the DevTools.
-  // mainWindow.webContents.openDevTools()
+  mainWindow.loadFile('renderer/index.html')
 
   // Execute workbench.
   const ipc = ipcMain
@@ -106,7 +103,35 @@ function createWindow () {
     }).catch(e => dialog.showMessageBoxSync(mainWindow, { type: 'warning', message: "Workbench can't connect to Islandora.",
       detail: e.toString(), buttons: ['OK']}));
   });
-  
+
+  let editorWindow;
+  ipc.on('add-editor-window', () => {
+    if (!editorWindow) {
+      editorWindow = new BrowserWindow({
+        width: 1000,
+        height: 600,
+        icon: __dirname + '/assets/islandora_workbench_desktop_icon.png',
+        webPreferences: {
+          preload: path.join(__dirname, 'preload.js'),
+          nodeIntegration: true
+        }
+      });
+      editorWindow.loadFile(path.join('renderer','editor.html'));
+
+      // FOR DEBUGGING. REMOVE BEFORE PR.
+      editorWindow.webContents.openDevTools();
+      
+      // Clean up the window when closed.
+      editorWindow.on('closed', () => {
+        editorWindow = null;
+      });
+      
+      ipc.on('run-workbench', (event, configPath, check = false) => {
+        runWorkbench(configPath, check);
+      });
+    }
+  });
+
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
     // Dereference the window object, usually you would store windows
@@ -172,6 +197,54 @@ async function ping_islandora(config) {
   return request;
 }
 
+async function runWorkbench(configPath, check = false) {
+  let config = yaml.safeLoad(fs.readFileSync(configPath, 'utf8'));
+  
+  ping_islandora(config).then((jsonApiJson) => {
+    let {PythonShell} = require('python-shell');
+    let workbenchArgs = ['--config', configPath];
+
+    if (check) {
+      workbenchArgs.push('--check');
+    }
+
+    let options = {
+      mode: 'text',
+      pythonOptions: ['-u'],
+      args: workbenchArgs
+    }
+
+    if (check) {
+      mainWindow.send('workbench-config-file', 'Checking configuration file ' +
+        configPath + ' for "' + config.task + '" task and data.')
+    } else {
+      mainWindow.send('workbench-config-file', 'Running task using configuration file ' +
+        configPath + ' for "' + config.task + '" task.')
+    }
+
+    let shell = new PythonShell(store.get('workbench.path-to-workbench'), options);
+    shell.on('message', function (message) {
+      mainWindow.send('asynchronous-reply', message)
+    });
+
+    shell.on('close', function (message) {
+      if (check) {
+        mainWindow.send('workbench-exit', 'Islandora Workbench has finished checking configuration  for "' +
+          config.task + '" task and data.')
+          dialog.showMessageBox({
+            type: 'info',
+            title: 'Check Completed',
+            message: 'Islandora Workbench has finished checking configuration  for "' +
+              config.task + '" task and data.'
+          });
+      } else {
+        mainWindow.send('workbench-exit', 'Islandora Workbench has finished "' + config.task + '" task.')
+      }
+    });
+  }).catch(e => dialog.showMessageBoxSync(mainWindow, { type: 'warning', message: "Workbench can't connect to Islandora.",
+    detail: e.toString(), buttons: ['OK']}));
+}
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -193,6 +266,3 @@ app.on('activate', function () {
   // dock icon is clicked and there are no other windows open.
   if (mainWindow === null) createWindow()
 })
-
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.

@@ -12,10 +12,16 @@
   "license": "Unlicense",
   "dependencies": {
     "electron-store": "^4.0.0",
+    "fs": "0.0.1-security",
+    "jexcel": "^3.4.4",
+    "js-yaml": "^3.13.1",
+    "material-design-icons": "^3.0.1",
+    "papaparse": "^5.1.0",
+    "path": "^0.12.7",
     "python-shell": "^1.0.8",
-    "js-yaml": "^3.13.1"
+    "walk": "^2.3.14"
   },
   "devDependencies": {
-    "electron": "^6.0.1"
+    "electron": "^6.0.10"
   }
 }
