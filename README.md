@@ -29,6 +29,8 @@ A sample configuration file, `workbench_desktop.yml`, is included with Workbench
 
 ### Running Workbench Desktop
 
+> Note: The spreadsheet editor, added in commit 360d454fd683af5e962090b38b7c4b7cdff92087, is still a work in progress.
+
 1. Make sure your Islandora instance is running.
 1. In the Islandora Workbench Desktop directory, open a terminal and run `npm start` (we will eventually provide a clickable icon for Workbench Desktop, like any other desktop application has).
 1. You will need to tell Workbench Desktop where the `workbench` exectuble script is. To do this, open the "Application" menu and choose the "Set path to workbench" item. A file selector dialog box will appear; browse to the `workbench` script and select it. *You only need to do this once,* not every time you run Workbench Desktop.

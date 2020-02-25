@@ -1,10 +1,10 @@
 task: create
-host: "http://localhost:8000"
+host: "http://192.168.50.111:8000"
 username: admin
 password: islandora
 input_dir: ../islandora_workbench/input_data
 input_csv: metadata.csv
-media_use_tid: 16
+media_use_tid: 17
 content_type: islandora_object
 drupal_filesystem: "fedora://"
 id_field: id
