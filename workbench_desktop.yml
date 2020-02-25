@@ -1,5 +1,5 @@
 task: create
-host: "http://192.168.50.111:8000"
+host: "http://localhost:8000"
 username: admin
 password: islandora
 input_dir: ../islandora_workbench/input_data
