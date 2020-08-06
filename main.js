@@ -154,47 +154,15 @@ async function ping_islandora(config) {
   let jsonApiPrefix = config.host + '/jsonapi/';
   let jsonAPIAuth = config.username + ':' + config.password;
   
-  var http = require('http');
-  request = await new Promise((resolve, reject) => {
-    const req = http.get(jsonApiPrefix, {auth: jsonAPIAuth.toString('base64')}, function (res) {
-      const { statusCode } = res;
-      const contentType = res.headers['content-type'];
-
-      let error;
-      if (statusCode !== 200) {
-        error = new Error('Request Failed.\n' +
-                          `Status Code: ${statusCode}`);
-      } else if (!/^application\/(vnd\.api\+)?json/.test(contentType)) {
-        error = new Error('Invalid content-type.\n' +
-                          `Expected application/json but received ${contentType}`);
-      }
-      if (error) {
-        console.error(error.message);
-        // Consume response data to free up memory
-        res.resume();
-        reject(error);
-      }
-      
-      res.setEncoding('utf8');
-      let rawData = '';
-      res.on('data', (chunk) => { rawData += chunk; });
-      res.on('end', () => {
-        try {
-          const parsedData = JSON.parse(rawData);
-          resolve(parsedData);
-        } catch (e) {
-          console.error(e.message);
-          reject(e);
-        }
-      });
-    }).on('error', (e) => {
-      console.error(`Got error: ${e.message}`);
-      reject(e);
-    });
+  var needle = require('needle');
+  return needle(
+    'get',
+    jsonApiPrefix,
+    {follow: 1, rejectUnauthorized: false, username: config.username, password: config.password}
+  ).then((res) => res.body)
+  .catch(function(err) {
+    console.error(err.message);
   });
-
-  console.log("DEBUG: Reached end of ping_islandora function.")
-  return request;
 }
 
 async function runWorkbench(configPath, check = false) {
